@@ -1,6 +1,10 @@
 package com.example.androidassessment
 
 
+import android.Manifest
+import android.app.Application
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -9,6 +13,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -18,16 +26,29 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.androidassessment.ViewModel.SpeechRecognitionViewModel
 
 @Composable
-fun satellite(navController: NavController) {
+fun satellite(
+    navController: NavController ,
+    viewModel: SpeechRecognitionViewModel = viewModel(),
+    context : Application
+) {
     val DM_Sans = FontFamily(
         Font(R.font.dm_sans , FontWeight.Normal)
     )
+    var hasPermission by remember { mutableStateOf(false) }
+
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasPermission = isGranted
+    }
 
     Column(
         modifier = Modifier
@@ -88,29 +109,50 @@ fun satellite(navController: NavController) {
                     contentScale = ContentScale.Crop
                 )
 
-                Text(
-                    text = "Recent Imagery Shows\n mostly healthy crops,\n with some stressed areas\n along northern edge. ",
-                    fontSize = 24.sp,
-                    color = Color.Black,
-                    lineHeight = 24.sp,
-                    fontFamily = DM_Sans,
-                    textAlign = TextAlign.Justify,
-                    modifier = Modifier.fillMaxWidth()
-                )
+               if (viewModel.recognizedText.isNotEmpty()){
+                   Text(
+                       text = viewModel.recognizedText,
+                       fontSize = 24.sp,
+                       color = Color.Black,
+                       lineHeight = 24.sp,
+                       fontFamily = DM_Sans,
+                       textAlign = TextAlign.Justify,
+                       modifier = Modifier.fillMaxWidth()
+                   )
+               }
+                else{
+                   Text(
+                       text = "Recent Imagery Shows\nmostly healthy crops,\nwith some stressed areas\nalong northern edge. ",
+                       fontSize = 24.sp,
+                       color = Color.Black,
+                       lineHeight = 24.sp,
+                       fontFamily = DM_Sans,
+                       textAlign = TextAlign.Justify,
+                       modifier = Modifier.fillMaxWidth()
+                   )
+               }
             }
         }
 
-        // Add space to push FAB to center
         Spacer(modifier = Modifier.weight(1f))
 
-        // 4. Floating Action Button in the center
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
             FloatingActionButton(
                 onClick = {
-                    navController.navigate(nav.insights)
+                    when {
+                        !hasPermission -> {
+                            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                        }
+                        viewModel.isRecording -> {
+                            viewModel.stopRecording()
+                        }
+                        else -> {
+                            viewModel.startRecording(context)
+                        }
+                    }
                 },
                 modifier = Modifier.size(70.dp).clip(CircleShape),
                 containerColor = Color(0xFFD4AF37),
@@ -122,8 +164,8 @@ fun satellite(navController: NavController) {
             ) {
 
                 Icon(
-                    painter = painterResource(R.drawable.baseline_mic_24),
-                    contentDescription = "Add",
+                    painter = if (viewModel.isRecording) painterResource(R.drawable.mic_off)  else painterResource(R.drawable.baseline_mic_24),
+                    contentDescription = "Record",
                     modifier = Modifier.size(24.dp)
                 )
             }
