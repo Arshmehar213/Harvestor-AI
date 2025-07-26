@@ -79,7 +79,6 @@ fun DashboardScreen(navController: NavController) {
 
            Spacer(modifier = Modifier.weight(1f))
 
-           // Golden Get Started Button
            Button(
                onClick = {
                    navController.navigate(nav.cropScan)

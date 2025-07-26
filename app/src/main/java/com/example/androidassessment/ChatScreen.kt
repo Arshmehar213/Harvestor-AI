@@ -14,19 +14,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.androidassessment.Models.ChatMessage
 import com.example.androidassessment.ViewModel.AiViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
-    viewModel : AiViewModel = viewModel()
-) {
+    navController: NavController,
+    viewModel: AiViewModel = viewModel(),
+    ) {
+
     val uiState by viewModel.uiState.collectAsState()
     var inputText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
 
-    // Auto-scroll to bottom when new messages arrive
     LaunchedEffect(uiState.messages.size) {
         if (uiState.messages.isNotEmpty()) {
             listState.animateScrollToItem(uiState.messages.size - 1)
@@ -38,7 +40,7 @@ fun ChatScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Header
+
         Text(
             text = "Vertex AI Chat",
             style = MaterialTheme.typography.headlineMedium,
@@ -46,7 +48,6 @@ fun ChatScreen(
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // Messages list
         LazyColumn(
             state = listState,
             modifier = Modifier
@@ -65,7 +66,6 @@ fun ChatScreen(
             }
         }
 
-        // Error handling
         uiState.error?.let { error ->
             Card(
                 modifier = Modifier
@@ -81,7 +81,6 @@ fun ChatScreen(
             }
         }
 
-        // Input field
         Row(
             modifier = Modifier
                 .fillMaxWidth()

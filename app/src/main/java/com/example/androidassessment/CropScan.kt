@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -78,7 +79,7 @@ fun CropScanner(navController: NavController) {
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             IconButton(
                 onClick = {
@@ -88,6 +89,19 @@ fun CropScanner(navController: NavController) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            IconButton(
+                onClick = {
+                    navController.navigate(nav.satellite)
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowForward,
+                    contentDescription = "forward",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
                 )
@@ -149,7 +163,7 @@ fun CropScanner(navController: NavController) {
             ) {
                 FloatingActionButton(
                     onClick = {
-                      navController.navigate(nav.satellite)
+                      TODO()
                     },
                     modifier = Modifier
                         .size(70.dp)
