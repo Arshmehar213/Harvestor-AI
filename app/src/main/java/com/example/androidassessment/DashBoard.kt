@@ -17,12 +17,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.androidassessment.ui.theme.dmsans
 
 @Composable
 fun DashboardScreen(navController: NavController) {
-    val DM_Sans = FontFamily(
-        Font(R.font.dm_sans , FontWeight.Normal)
-    )
+
 
    Scaffold(
        modifier = Modifier.fillMaxSize(),
@@ -39,7 +38,7 @@ fun DashboardScreen(navController: NavController) {
            Text(
                text = "Welcome to",
                fontSize = 28.sp,
-               fontFamily = DM_Sans,
+               fontFamily = dmsans,
                fontWeight = FontWeight.Bold,
                color = Color.White,
                textAlign = TextAlign.Center,
@@ -49,7 +48,7 @@ fun DashboardScreen(navController: NavController) {
            Text(
                text = "HarvestorAI",
                fontSize = 40.sp,
-               fontFamily = DM_Sans,
+               fontFamily = dmsans,
                modifier = Modifier.fillMaxWidth(),
                fontWeight = FontWeight.Bold,
                color = Color.White,
@@ -72,7 +71,7 @@ fun DashboardScreen(navController: NavController) {
                fontSize = 24.sp,
                color = Color.White,
                textAlign = TextAlign.Center,
-               fontFamily = DM_Sans,
+               fontFamily = dmsans,
                lineHeight = 24.sp,
                modifier = Modifier.padding(horizontal = 16.dp)
            )
@@ -99,12 +98,11 @@ fun DashboardScreen(navController: NavController) {
                Text(
                    text = "Get Started",
                    fontSize = 18.sp,
-                   fontFamily = DM_Sans,
+                   fontFamily = dmsans,
                    fontWeight = FontWeight.SemiBold,
                    color = Color.Black
                )
            }
-
            Spacer(modifier = Modifier.height(32.dp))
        }
    }

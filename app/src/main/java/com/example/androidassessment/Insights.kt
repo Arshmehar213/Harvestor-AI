@@ -20,12 +20,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.androidassessment.ui.theme.dmsans
 
 @Composable
 fun Insights(navController: NavHostController) {
-    val DM_Sans = FontFamily(
-        Font(R.font.dm_sans , FontWeight.Normal)
-    )
 
     Column(
         modifier = Modifier
@@ -36,7 +34,7 @@ fun Insights(navController: NavHostController) {
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround
+            horizontalArrangement = Arrangement.Start
         ) {
             IconButton(
                 onClick = {
@@ -50,25 +48,12 @@ fun Insights(navController: NavHostController) {
                     modifier = Modifier.size(24.dp)
                 )
             }
-
-            IconButton(
-                onClick = {
-                    navController.navigate(nav.chatModel)
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowForward,
-                    contentDescription = "forward",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
         }
 
         Text(
             text = "Insights",
             fontSize = 24.sp,
-            fontFamily = DM_Sans,
+            fontFamily = dmsans,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.fillMaxWidth()
@@ -102,7 +87,7 @@ fun Insights(navController: NavHostController) {
                     Text(
                         text = "Tommorows Weather",
                         fontSize = 18.sp,
-                        fontFamily = DM_Sans,
+                        fontFamily = dmsans,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.Black,
                         modifier = Modifier.fillMaxWidth()
@@ -123,7 +108,7 @@ fun Insights(navController: NavHostController) {
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        Text(text = "Snow\nShowers" , fontSize = 32.sp , color = Color.Black , fontFamily = DM_Sans,)
+                        Text(text = "Snow\nShowers" , fontSize = 32.sp , color = Color.Black , fontFamily = dmsans,)
 
                     }
                     Spacer(modifier = Modifier.height(12.dp))
@@ -132,8 +117,8 @@ fun Insights(navController: NavHostController) {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceAround
                     ) {
-                        Text(text = "High 28° C" ,  color = Color.Black , fontFamily = DM_Sans)
-                        Text(text = "Low 21° C" , color = Color.Black , fontFamily = DM_Sans)
+                        Text(text = "High 28° C" ,  color = Color.Black , fontFamily = dmsans)
+                        Text(text = "Low 21° C" , color = Color.Black , fontFamily = dmsans)
                     }
                 }
             }
@@ -159,7 +144,7 @@ fun Insights(navController: NavHostController) {
                     Text(
                         text = "Yield Prediction",
                         fontSize = 18.sp,
-                        fontFamily = DM_Sans,
+                        fontFamily = dmsans,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.Black
                     )
@@ -167,7 +152,7 @@ fun Insights(navController: NavHostController) {
                     Text(
                         text = "Good",
                         fontSize = 22.sp,
-                        fontFamily = DM_Sans,
+                        fontFamily = dmsans,
                         color = Color.Black,
                         textAlign = TextAlign.Center
                     )
@@ -175,7 +160,7 @@ fun Insights(navController: NavHostController) {
                     Spacer(modifier = Modifier.height(50.dp))
 
                     Column {
-                        Text(text = "Price\nprojection\nto rise", color = Color.Black , fontFamily = DM_Sans)
+                        Text(text = "Price\nprojection\nto rise", color = Color.Black , fontFamily = dmsans)
                     }
                 }
             }

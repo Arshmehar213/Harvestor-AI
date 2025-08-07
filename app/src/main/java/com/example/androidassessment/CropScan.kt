@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -37,25 +36,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.androidassessment.ViewModel.AiViewModel
+import com.example.androidassessment.ViewModel.SpeechRecognitionViewModel
+import com.example.androidassessment.ui.theme.dmsans
 
 @Composable
-fun CropScanner(navController: NavController) {
+fun CropScanner(navController: NavController , viewModel: SpeechRecognitionViewModel = viewModel() , aiViewModel: AiViewModel = viewModel()) {
 
-    val hasPermission by remember { mutableStateOf(false) }
+    var hasPermission by remember { mutableStateOf(false) }
     var takenPicture by remember { mutableStateOf<Bitmap?>(null) }
-
-    val DM_Sans = FontFamily(
-        Font(R.font.dm_sans , FontWeight.Normal)
-    )
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview(),
@@ -67,6 +65,7 @@ fun CropScanner(navController: NavController) {
     val cameraPermission = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()) { isGranted->
         if (isGranted){
+            hasPermission = isGranted
             cameraLauncher.launch()
         }
     }
@@ -79,7 +78,7 @@ fun CropScanner(navController: NavController) {
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.Start
         ) {
             IconButton(
                 onClick = {
@@ -94,25 +93,13 @@ fun CropScanner(navController: NavController) {
                 )
             }
 
-            IconButton(
-                onClick = {
-                    navController.navigate(nav.satellite)
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowForward,
-                    contentDescription = "forward",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
         }
 
         Text(
             text = "Scan Crop",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            fontFamily = DM_Sans,
+            fontFamily = dmsans,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.fillMaxWidth()
         )
@@ -134,22 +121,34 @@ fun CropScanner(navController: NavController) {
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
-                Image(
-                    painter = painterResource(R.drawable.leaf),
-                    contentDescription = "Card Image",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp)
-                        .clickable { cameraPermission.launch(Manifest.permission.CAMERA) },
-                    contentScale = ContentScale.Crop
-                )
+               if (takenPicture != null){
+                   Image(
+                       bitmap = takenPicture!!.asImageBitmap(),
+                          contentDescription = "Card Image",
+                          modifier = Modifier
+                              .fillMaxWidth()
+                              .height(300.dp)
+                              .clickable { if (hasPermission){ cameraPermission.launch(Manifest.permission.CAMERA) } },
+                          contentScale = ContentScale.Crop
+                      )
+               }
+                else{
+                   Image(
+                       painter = painterResource(R.drawable.take_picture),
+                       contentDescription = "Card Image",
+                       modifier = Modifier
+                           .fillMaxWidth()
+                           .height(300.dp)
+                           .clickable { cameraPermission.launch(Manifest.permission.CAMERA) },
+                   )
+               }
 
                 Text(
                     text = "Diagnosis:\nMagnasium deficiency,\nApply magnasium\nsulfate to correct plants\nto correct the deficiency ",
                     fontSize = 24.sp,
                     color = Color.Black,
                     lineHeight = 24.sp,
-                    fontFamily = DM_Sans,
+                    fontFamily = dmsans,
                     textAlign = TextAlign.Justify,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -163,7 +162,15 @@ fun CropScanner(navController: NavController) {
             ) {
                 FloatingActionButton(
                     onClick = {
-                      TODO()
+                     if (viewModel.isRecording){
+                         viewModel.stopRecording()
+                         if (viewModel.recognizedText.isNotEmpty() && takenPicture != null){
+                             aiViewModel.sendImageInput(takenPicture!!, viewModel.recognizedText)
+                         }
+                     }
+                        else{
+                            viewModel.startRecording()
+                     }
                     },
                     modifier = Modifier
                         .size(70.dp)

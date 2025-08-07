@@ -2,7 +2,6 @@ package com.example.androidassessment
 
 
 import android.Manifest
-import android.app.Application
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -11,9 +10,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,27 +22,26 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.androidassessment.ViewModel.AiViewModel
 import com.example.androidassessment.ViewModel.SpeechRecognitionViewModel
+import com.example.androidassessment.ui.theme.dmsans
 
 @Composable
 fun satellite(
     navController: NavController ,
     viewModel: SpeechRecognitionViewModel = viewModel(),
-    context : Application
-) {
-    val DM_Sans = FontFamily(
-        Font(R.font.dm_sans , FontWeight.Normal)
-    )
+    aiViewModel : AiViewModel = viewModel()
+)
+{
     var hasPermission by remember { mutableStateOf(false) }
 
+    var response = aiViewModel.uiState.collectAsState()
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -59,7 +57,7 @@ fun satellite(
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.Start
         ) {
             IconButton(
                 onClick = {
@@ -73,25 +71,12 @@ fun satellite(
                     modifier = Modifier.size(24.dp)
                 )
             }
-
-            IconButton(
-                onClick = {
-                    navController.navigate(nav.insights)
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowForward,
-                    contentDescription = "forward",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
         }
 
         Text(
             text = "Satellite Imagery",
             fontSize = 24.sp,
-            fontFamily = DM_Sans,
+            fontFamily = dmsans,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.fillMaxWidth()
@@ -123,24 +108,25 @@ fun satellite(
                     contentScale = ContentScale.Crop
                 )
 
-               if (viewModel.recognizedText.isNotEmpty()){
+               if (response.toString().isNotEmpty()){
+
                    Text(
-                       text = viewModel.recognizedText,
+                       text =  response.value.messages.toString() ,
                        fontSize = 24.sp,
                        color = Color.Black,
                        lineHeight = 24.sp,
-                       fontFamily = DM_Sans,
+                       fontFamily = dmsans,
                        textAlign = TextAlign.Justify,
                        modifier = Modifier.fillMaxWidth()
                    )
                }
                 else{
                    Text(
-                       text = "Recent Imagery Shows\nmostly healthy crops,\nwith some stressed areas\nalong northern edge. ",
+                       text = "Start Observing Whats Going on.",
                        fontSize = 24.sp,
                        color = Color.Black,
                        lineHeight = 24.sp,
-                       fontFamily = DM_Sans,
+                       fontFamily = dmsans,
                        textAlign = TextAlign.Justify,
                        modifier = Modifier.fillMaxWidth()
                    )
@@ -162,9 +148,12 @@ fun satellite(
                         }
                         viewModel.isRecording -> {
                             viewModel.stopRecording()
+                            if (viewModel.recognizedText.isNotEmpty()){
+                             aiViewModel.sendMessage(viewModel.recognizedText)
+                            }
                         }
                         else -> {
-                            viewModel.startRecording(context)
+                            viewModel.startRecording()
                         }
                     }
                 },

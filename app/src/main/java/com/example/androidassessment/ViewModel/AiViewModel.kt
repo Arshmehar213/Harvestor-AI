@@ -1,6 +1,7 @@
 package com.example.androidassessment.ViewModel
 
 import android.app.Application
+import android.graphics.Bitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.androidassessment.AiService.VertexService
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.Response
 
 class AiViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -17,6 +19,9 @@ class AiViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(ChatModel())
     val uiState: StateFlow<ChatModel> = _uiState.asStateFlow()
+
+    private val _Response= MutableStateFlow(ChatModel())
+    val Response : StateFlow<ChatModel> = _Response.asStateFlow()
 
     fun sendMessage(message: String) {
         if (message.isBlank()) return
@@ -44,6 +49,12 @@ class AiViewModel(application: Application) : AndroidViewModel(application) {
                         error = error.message
                     )
                 }
+        }
+    }
+
+    fun sendImageInput(bitmap: Bitmap , prompt : String){
+        viewModelScope.launch {
+            vertexAIService.ImageInput(bitmap , prompt)
         }
     }
 

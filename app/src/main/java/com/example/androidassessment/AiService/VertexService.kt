@@ -1,14 +1,22 @@
 package com.example.androidassessment.AiService
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.util.Log
 import com.google.auth.oauth2.ServiceAccountCredentials
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.Call
+import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
 import org.json.JSONObject
+import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.io.InputStream
 
 class VertexService(val context: Context) {
@@ -80,5 +88,58 @@ class VertexService(val context: Context) {
     } catch (e: Exception) {
         Result.failure(e)
     }
-}
+   }
+
+   suspend fun ImageInput(bitmap: Bitmap , text : String){
+       try {
+           val url = "https://us-central1-aiplatform.googleapis.com/v1/projects/YOUR_PROJECT_ID/locations/us-central1/publishers/google/models/gemini-pro-vision:predict"
+           val base64Image = convertToBase64(bitmap)
+           val token = null //Assign the Token.
+
+           val json = """
+           {
+           "instances" : [
+           {
+           "prompt" : [
+           {"text" : "$text"},
+           {"image" : "bytesBase64Encoded" : "$base64Image"}}      
+    ]
+    }
+    ],
+    "parameters" : {}
+       """
+
+           val mediaType = "application/json".toMediaType()
+           val body = RequestBody.create(mediaType , json)
+
+           val request = Request.Builder()
+               .url(url)
+               .addHeader("Authorization", "Bearer $token")
+               .addHeader("Content-Type", "application/json")
+               .post(body)
+               .build()
+
+           client.newCall(request).enqueue(object : Callback{
+               override fun onFailure(call: Call, e: IOException) {
+                   Log.e("ImageInputError" , e.message.toString())
+
+               }
+
+               override fun onResponse(call: Call, Response: Response) {
+                   val response = Response.body?.string()
+                   Result.success(response)
+               }
+           })
+       }catch (e : Exception){
+           Log.e("ErrorInImage" , e.message.toString())
+           Result.failure<Exception>(e)
+       }
+   }
+
+    private fun convertToBase64(bitmap: Bitmap): String? {
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG , 100 , stream)
+        val byteArray = stream.toByteArray()
+        return android.util.Base64.encodeToString(byteArray,android.util.Base64.NO_WRAP)
+    }
 }
